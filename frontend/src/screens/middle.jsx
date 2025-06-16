@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ExploreMenu from "./Explore";
 import { UtensilsCrossed } from "lucide-react";
-import axios from "axios";
+import axios from '../config/axios.js';
 import { useNavigate } from "react-router-dom";
 
 
@@ -44,7 +44,7 @@ const Middle = () => {
         const { latitude, longitude } = position.coords;
 
         try {
-          const res = await axios.post("http://localhost:5000/api/location", {
+          const res = await axios.post("/api/location", {
             latitude,
             longitude,
           });
@@ -73,7 +73,7 @@ const Middle = () => {
   useEffect(() => {
     const getItems = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/Item/getItems");
+        const response = await axios.get("/Item/getItems");
         const items = response?.data?.itemStore;
         if (Array.isArray(items)) {
           setCategories(items);

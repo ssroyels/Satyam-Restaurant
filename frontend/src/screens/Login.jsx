@@ -11,7 +11,7 @@ const Login = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:5000/users/login", {
+      const res = await fetch("https://satyam-restaurant.onrender.com/users/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

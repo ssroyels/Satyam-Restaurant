@@ -16,7 +16,11 @@ import supportRoutes from "./routes/support.routes.js"
 
 dotenv.config();
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: 'https://satyam-restaurant-1.onrender.com', // or '*' for all origins (use with caution)
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true // if you're using cookies or authorization headers
+}));
 app.use(express.json());
 
 mongoose.connect(process.env.MONGO_URI, {

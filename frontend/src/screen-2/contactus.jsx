@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "../config/axios.js";
 import React from "react";
 import { useState } from "react";
 import {
@@ -17,7 +17,7 @@ const ContactSupport = () => {
   const navigate = useNavigate();
   const SubmitHandler = async (e) => {
     e.preventDefault();
-   const response =  await axios.post("http://localhost:5000/support/supportmsg",{FullName,Email,Message})
+   const response =  await axios.post("/support/supportmsg",{FullName,Email,Message})
     
       alert("User Sent Msg successfully ")
       console.log(response.data)

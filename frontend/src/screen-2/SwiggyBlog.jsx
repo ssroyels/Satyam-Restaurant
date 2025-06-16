@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import axios from 'axios';
+import axios from "../config/axios.js";
 
 
 const SwiggyBlog = () => {
@@ -9,7 +9,7 @@ const SwiggyBlog = () => {
 
   useEffect(() => {
     const getBlog = async () => {
-      const response = await axios.get("http://localhost:5000/Blog/getBlog");
+      const response = await axios.get("/Blog/getBlog");
       
       setFetchBlog(response.data.BlogStore);
 

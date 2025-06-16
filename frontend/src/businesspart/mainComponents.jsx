@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "../config/axios.js";
 import React, { useEffect, useState } from 'react';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
@@ -9,7 +9,7 @@ const MainComponents = () => {
   useEffect(() => {
     const fetchBusinesses = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/Business/getBusiness");
+        const response = await axios.get("/Business/getBusiness");
         setBusinesses(response.data.BusinessStore || []);
       } catch (error) {
         console.error("Error fetching data:", error);

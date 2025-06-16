@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios"
+import axios from "../config/axios.js";
 
 const teamTabs = ["Management Team", "Board of Directors"];
 
@@ -33,7 +33,7 @@ const TeamSection = () => {
   useEffect ( () => {
       const getTeam = async () => {
 
-      const TeamStore = await axios.get("http://localhost:5000/Team/getTeam");
+      const TeamStore = await axios.get("/Team/getTeam");
     
       setTeamSection(TeamStore.data.TeamStore);
 
