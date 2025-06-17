@@ -33,7 +33,8 @@ const TeamSection = () => {
   useEffect ( () => {
       const getTeam = async () => {
 
-      const TeamStore = await axios.get("/Team/getTeam");
+      const TeamStore = await axios.get("/Team/getTeam",{ withCredentials: true
+});
     
       setTeamSection(TeamStore.data.TeamStore);
 

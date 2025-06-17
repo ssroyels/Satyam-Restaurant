@@ -47,7 +47,8 @@ const Middle = () => {
           const res = await axios.post("/api/location", {
             latitude,
             longitude,
-          });
+          },{ withCredentials: true
+});
           console.log(res.data);
           setLocationName(res.data.display_name); // from OpenStreetMap
         } catch (err) {
@@ -73,7 +74,8 @@ const Middle = () => {
   useEffect(() => {
     const getItems = async () => {
       try {
-        const response = await axios.get("/Item/getItems");
+        const response = await axios.get("/Item/getItems",{ withCredentials: true
+});
         const items = response?.data?.itemStore;
         if (Array.isArray(items)) {
           setCategories(items);

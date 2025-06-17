@@ -44,7 +44,8 @@ const SignUp = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('/users/register', formData);
+      const res = await axios.post('/users/register',{ withCredentials: true
+} ,formData);
       setMessage(res.data.msg);
       setStep(2);
     } catch (err) {
@@ -58,7 +59,8 @@ const SignUp = () => {
       const res = await axios.post('/users/verifyOtp', {
         email: formData.email,
         otp,
-      });
+      },{ withCredentials: true
+});
       setMessage(res.data.msg);
       setFormData({ username: '', email: '', password: '' });
       setOtp('');

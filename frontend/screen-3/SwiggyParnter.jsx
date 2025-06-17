@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState } from 'react';
-import axios from "axios";
+import axios from "../src/config/axios.js";
 import { useNavigate } from 'react-router-dom';
 
 const SwiggyPartner = () => {
@@ -9,7 +9,7 @@ const SwiggyPartner = () => {
 
   const handlenumber = (e) => {
     e.preventDefault();
-    axios.post("http://localhost:5000/Mobile/sendNumber",{phoneNumber:number})
+    axios.post("/Mobile/sendNumber",{phoneNumber:number},{withCredentials:true})
     .then(() => {
       alert("Mobile number register successfully")
       // setNumber("")

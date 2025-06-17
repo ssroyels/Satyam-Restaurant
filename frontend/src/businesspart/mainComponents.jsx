@@ -9,7 +9,8 @@ const MainComponents = () => {
   useEffect(() => {
     const fetchBusinesses = async () => {
       try {
-        const response = await axios.get("/Business/getBusiness");
+        const response = await axios.get("/Business/getBusiness",{ withCredentials: true
+});
         setBusinesses(response.data.BusinessStore || []);
       } catch (error) {
         console.error("Error fetching data:", error);

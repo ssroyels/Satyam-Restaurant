@@ -9,7 +9,8 @@ const SwiggyBlog = () => {
 
   useEffect(() => {
     const getBlog = async () => {
-      const response = await axios.get("/Blog/getBlog");
+      const response = await axios.get("/Blog/getBlog",{ withCredentials: true
+});
       
       setFetchBlog(response.data.BlogStore);
 
