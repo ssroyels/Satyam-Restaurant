@@ -113,11 +113,11 @@ const SwiggyDineoutBanner = () => {
       <header className="flex flex-wrap justify-between items-center px-4 sm:px-6 py-4 bg-white shadow-sm sticky top-0 z-30">
         <div className="flex items-center gap-3">
           <img
-            src="https://upload.wikimedia.org/wikipedia/en/1/12/Swiggy_logo.svg"
+            src="https://www.google.com/search?client=ms-android-realme-terr1-rso2&sca_esv=8900ff206bef6d47&sxsrf=AE3TifNmbH93QozlYap1pIhrmd2eCVvtvw:1750173643192&udm=2&fbs=AIIjpHz30rPMyW-0vSP0k1VTNmO_kCOARpjPjQRkBWH2HwUIz5XUSIJvSK0oms7XOxizDlnr_4ZY5sR6MhoHu3TFlth2dELiNU5e9vD7To8bxJqzGBXrLR8MX_HosxIhYYaJwWP5dHP8bhRIWxPqVHYuxJfzWWkrsCKfIDJFGY7AOJSqSHDGSBWjFqGiPqkr_wiz_8EgAZS9oV6KhQtd_5bv0s92UjMHxj7FoOktE8zzMghVnp9jKa4&q=singh+restaurant+logo&sa=X&sqi=2&ved=2ahUKEwiBx7Dy4PiNAxWKs1YBHcdUG0AQtKgLegQIEhAB&biw=360&bih=691&dpr=3"
             alt="Swiggy Logo"
             className="w-8 h-8"
           />
-          <h1 className="text-xl font-bold text-orange-500">Swiggy</h1>
+          <h1 className="text-xl font-bold text-orange-500">Singh-Restaurant</h1>
           <span className="ml-2 text-sm text-gray-600 cursor-pointer hover:underline hidden sm:inline">
             Set your precise location ▼
           </span>
