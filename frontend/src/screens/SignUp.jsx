@@ -121,7 +121,7 @@ const SignUp = () => {
             >
               Send OTP
             </button>
-            <Link to={"/signup"} className='text-2xl hover:text-3xl font-bold' >Login Now</Link>
+            <Link to={"/login"} className='text-2xl text-blue-700 hover:text-blue-300 underline font-bold' >Login Now</Link>
           </form>
         ) : (
           <form onSubmit={handleOtpSubmit} className="space-y-4">
