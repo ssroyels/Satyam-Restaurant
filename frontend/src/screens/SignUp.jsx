@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../config/axios.js';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const floatingTexts = [
   "Welcome to Singh Restaurant",
@@ -120,6 +121,7 @@ const SignUp = () => {
             >
               Send OTP
             </button>
+            <Link to={"/signup"} className='text-2xl hover:text-3xl font-bold' >Login Now</Link>
           </form>
         ) : (
           <form onSubmit={handleOtpSubmit} className="space-y-4">

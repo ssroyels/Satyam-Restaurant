@@ -8,6 +8,7 @@ import {
   ChevronDown,
   Plus,
   Minus,
+  Link,
 } from "lucide-react";
 // import "tailwindcss/tailwind.css";
 
@@ -188,9 +189,9 @@ export default function FoodItems() {
           <button className="flex items-center gap-1">
             <Search size={16} /> Search
           </button>
-          <a href="/login" className="flex items-center gap-1">
+          <Link to={"/login"} className="flex items-center gap-1">
             <User size={16} /> Sign In
-          </a>
+          </Link>
           <button
             onClick={() => setShowCart(true)}
             className="flex items-center gap-1 relative"
