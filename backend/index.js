@@ -17,7 +17,7 @@ import supportRoutes from "./routes/support.routes.js"
 dotenv.config();
 const app = express()
 app.use(cors({
-  origin: 'https://satyam-restaurant-1.onrender.com/', // or '*' for all origins (use with caution)
+  origin: 'https://satyam-restaurant-1.onrender.com', // or '*' for all origins (use with caution)
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true // if you're using cookies or authorization headers
 }));
