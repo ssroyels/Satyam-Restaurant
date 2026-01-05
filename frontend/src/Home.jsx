@@ -1,6 +1,6 @@
 import React from "react";
 import Navbar from "./screens/Navbar";
-import Middle from "./screens/Middle";
+import Middle from "./screens/middle";
 import Footer from "./screens/Footer";
 
 const Home = () => {
