@@ -1,81 +1,124 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import axios from "../config/axios.js";
-
 
 const SwiggyBlog = () => {
   const scrollRef = useRef(null);
-  const [fetchBlog,setFetchBlog] = useState([]);
+  const [blogs, setBlogs] = useState([]);
+  const [loading, setLoading] = useState(true);
 
+  /* ================= FETCH BLOGS ================= */
   useEffect(() => {
-    const getBlog = async () => {
-      const response = await axios.get("/Blog/getBlog",{ withCredentials: true
-});
-      
-      setFetchBlog(response.data.BlogStore);
+    const getBlogs = async () => {
+      try {
+        const res = await axios.get("/Blog/getBlog", {
+          withCredentials: true,
+        });
+        setBlogs(res.data?.BlogStore || []);
+      } catch (err) {
+        console.error("Failed to fetch blogs");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    }
-    getBlog();
+    getBlogs();
+  }, []);
 
-  },[])
-
-  const scroll = (direction) => {
+  /* ================= SCROLL ================= */
+  const scroll = (dir) => {
     if (!scrollRef.current) return;
-    const width = scrollRef.current.offsetWidth;
     scrollRef.current.scrollBy({
-      left: direction === 'left' ? -width : width,
-      behavior: 'smooth',
+      left: dir === "left" ? -400 : 400,
+      behavior: "smooth",
     });
   };
 
   return (
-    <section className="max-w-7xl mx-auto px-4 py-10">
-      <h2 className="text-3xl font-extrabold text-center mb-6 flex justify-center items-center gap-4">
-        <span className="border-t-2 border-orange-500 w-10"></span>
-        Singh-Restaurent BLOG
-        <span className="border-t-2 border-orange-500 w-10"></span>
-      </h2>
+    <section className="max-w-7xl mx-auto px-4 py-16">
+      {/* ================= HEADER ================= */}
+      <div className="text-center mb-10">
+        <span className="inline-block mb-2 px-4 py-1 text-xs font-semibold tracking-widest text-orange-600 bg-orange-100 rounded-full">
+          SINGH RESTAURANT BLOG
+        </span>
+        <h2 className="text-3xl md:text-4xl font-extrabold text-gray-800">
+          Stories, Food & Insights 🍽️
+        </h2>
+        <p className="text-gray-600 mt-2 max-w-2xl mx-auto">
+          Discover food trends, kitchen stories, and updates from the world of
+          Singh Restaurant.
+        </p>
+      </div>
 
-      {/* Arrows */}
-      <div className="flex justify-end gap-2 mb-4">
-        <button onClick={() => scroll('left')} className="p-2 bg-gray-100 rounded-full hover:bg-gray-200">
+      {/* ================= CONTROLS ================= */}
+      <div className="flex justify-end gap-3 mb-4">
+        <button
+          onClick={() => scroll("left")}
+          className="p-2 bg-gray-100 rounded-full hover:bg-gray-200"
+        >
           <ChevronLeft />
         </button>
-        <button onClick={() => scroll('right')} className="p-2 bg-gray-100 rounded-full hover:bg-gray-200">
+        <button
+          onClick={() => scroll("right")}
+          className="p-2 bg-gray-100 rounded-full hover:bg-gray-200"
+        >
           <ChevronRight />
         </button>
       </div>
 
-      {/* Card Carousel */}
-      <div
-        ref={scrollRef}
-        className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-hide pb-4"
-      >
-        {fetchBlog.map((post, index) => (
-          <div
-            key={index}
-            className="flex-shrink-0 snap-start bg-white rounded-3xl shadow-md border hover:shadow-lg w-80 sm:w-[45%] md:w-[30%]"
-          >
-            <img
-              src={post.image}
-              alt={post.title}
-              className="w-full h-44 object-cover rounded-t-3xl"
-            />
-            <div className="p-5">
-              <p className="text-sm text-gray-500 mb-2">{post.date}</p>
-              <h3 className="text-md font-semibold text-gray-800 mb-4">{post.title}</h3>
-              <button className="bg-orange-100 text-orange-600 px-4 py-2 rounded-md text-sm font-medium">
-                Read more
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+      {/* ================= BLOG CAROUSEL ================= */}
+      {loading ? (
+        <p className="text-center text-gray-500">Loading blogs...</p>
+      ) : blogs.length === 0 ? (
+        <p className="text-center text-gray-500">
+          No blogs available right now.
+        </p>
+      ) : (
+        <div
+          ref={scrollRef}
+          className="flex gap-6 overflow-x-auto scroll-smooth scrollbar-hide pb-4"
+        >
+          {blogs.map((post, index) => (
+            <div
+              key={index}
+              className="flex-shrink-0 w-80 sm:w-[45%] md:w-[30%] bg-white rounded-3xl border shadow-sm hover:shadow-xl transition-all duration-300 group"
+            >
+              {/* IMAGE */}
+              <div className="relative h-44 overflow-hidden rounded-t-3xl">
+                <img
+                  src={post.image}
+                  alt={post.title}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                <span className="absolute top-3 left-3 bg-orange-500 text-white text-xs px-3 py-1 rounded-full">
+                  Singh Blog
+                </span>
+              </div>
 
-      {/* Explore Button */}
-      <div className="flex justify-center mt-6">
-        <button className="bg-orange-500 text-white px-6 py-2 rounded-xl font-medium hover:bg-orange-600">
-          Explore
+              {/* CONTENT */}
+              <div className="p-5">
+                <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                  <Clock size={14} />
+                  <span>{post.readTime || "3 min read"}</span>
+                </div>
+
+                <h3 className="text-md font-semibold text-gray-800 mb-3 line-clamp-2">
+                  {post.title}
+                </h3>
+
+                <button className="text-sm font-semibold text-orange-600 hover:underline">
+                  Read more →
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ================= EXPLORE ================= */}
+      <div className="flex justify-center mt-10">
+        <button className="bg-orange-500 text-white px-8 py-3 rounded-full font-semibold hover:bg-orange-600 transition">
+          Explore Singh Blogs
         </button>
       </div>
     </section>

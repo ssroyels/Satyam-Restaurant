@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Menu, X } from "lucide-react";
+
 import MainComponents from "../businesspart/mainComponents";
 import SwiggyBlog from "./SwiggyBlog";
 import TeamSection from "./People";
@@ -7,49 +8,74 @@ import KnowUsSection from "./KnowUsSection";
 import IpoDeliveredSection from "./video";
 import SwiggyAboutUs from "./swiggyaboutus";
 import DeliveringForEveryone from "./deliverysection";
- import ContactSupport from "./contactus";
+import ContactSupport from "./contactus";
 
 const NavBar2WithContent = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState("about");
+  const [activeSection, setActiveSection] = useState(
+    () => localStorage.getItem("singh-active-section") || "about"
+  );
+
+  const mobileMenuRef = useRef(null);
 
   const navItems = [
-    { label: "About Singh-Restaurent", id: "about" },
+    { label: "About Singh Restaurant", id: "about" },
     { label: "Our Businesses", id: "businesses" },
     { label: "Delivering For Everyone", id: "impact" },
     { label: "Newsroom", id: "newsroom" },
     { label: "Contact Us", id: "contact" },
   ];
 
+  /* ================= PERSIST ACTIVE TAB ================= */
+  useEffect(() => {
+    localStorage.setItem("singh-active-section", activeSection);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [activeSection]);
+
+  /* ================= CLOSE MOBILE MENU ON OUTSIDE CLICK ================= */
+  useEffect(() => {
+    const handler = (e) => {
+      if (
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(e.target)
+      ) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  /* ================= CONTENT RENDER ================= */
   const renderContent = () => {
     switch (activeSection) {
       case "about":
-        return   <main className="flex flex-col space-y-10 md:space-y-16">
-        <section className="px-4 sm:px-6 md:px-10 lg:px-20">
-          <SwiggyAboutUs />
-        </section>
-        <section className="px-4 sm:px-6 md:px-10 lg:px-20">
-          <IpoDeliveredSection />
-        </section>
-        <section className="px-4 sm:px-6 md:px-10 lg:px-20">
-          <KnowUsSection />
-        </section>
-        <section className="px-4 sm:px-6 md:px-10 lg:px-20">
-          <TeamSection />
-        </section>
-         <section className="px-4 sm:px-6 md:px-10 lg:px-20">
-          <SwiggyBlog />
-        </section>
-      </main>;
+        return (
+          <main className="flex flex-col space-y-12 animate-fade-in">
+            <SwiggyAboutUs />
+            <IpoDeliveredSection />
+            <KnowUsSection />
+            <TeamSection />
+            <SwiggyBlog />
+          </main>
+        );
+
       case "businesses":
         return <MainComponents />;
+
       case "impact":
-        return <DeliveringForEveryone/>;
+        return <DeliveringForEveryone />;
+
       case "newsroom":
-        return <div>📰 Welcome to the <strong>Newsroom</strong>.</div>;
+        return (
+          <div className="text-center text-gray-600 py-20">
+            📰 Welcome to the <strong>Singh Restaurant Newsroom</strong>
+          </div>
+        );
+
       case "contact":
-      
-         return <ContactSupport/>;
+        return <ContactSupport />;
+
       default:
         return null;
     }
@@ -57,23 +83,29 @@ const NavBar2WithContent = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-white shadow-md">
+      {/* ================= HEADER ================= */}
+      <header className="sticky top-0 z-50 bg-white shadow-sm">
         <nav className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
+          
           {/* Logo */}
-          <div className="flex items-center gap-2 text-orange-500 font-extrabold text-2xl">
-            <div className="bg-orange-500 w-8 h-8 rounded-sm flex items-center justify-center text-white text-lg">
+          <div className="flex items-center gap-2 text-orange-500 font-extrabold text-xl">
+            <div className="bg-orange-500 w-8 h-8 rounded flex items-center justify-center text-white">
               S
             </div>
-            Singh-Restaurent
+            Singh Restaurant
           </div>
 
-          {/* Desktop Navigation */}
-          <ul className="hidden md:flex gap-8 font-medium text-sm text-gray-700 tracking-wide">
+          {/* Desktop Nav */}
+          <ul className="hidden md:flex gap-8 text-sm font-medium text-gray-700">
             {navItems.map(({ label, id }) => (
               <li key={id}>
                 <button
                   onClick={() => setActiveSection(id)}
-                  className={`transition duration-200 hover:text-orange-500 ${
+                  onKeyDown={(e) =>
+                    (e.key === "Enter" || e.key === " ") &&
+                    setActiveSection(id)
+                  }
+                  className={`transition hover:text-orange-500 ${
                     activeSection === id
                       ? "text-orange-500 border-b-2 border-orange-500 pb-1"
                       : ""
@@ -85,27 +117,24 @@ const NavBar2WithContent = () => {
             ))}
           </ul>
 
-          {/* Mobile Menu Toggle */}
+          {/* Mobile Toggle */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden"
-            aria-label={isOpen ? "Close menu" : "Open menu"}
+            className="md:hidden text-orange-500"
+            aria-label="Toggle menu"
           >
-            {isOpen ? (
-              <X size={24} className="text-orange-500" />
-            ) : (
-              <Menu size={24} className="text-orange-500" />
-            )}
+            {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </nav>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Nav */}
         <div
-          className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+          ref={mobileMenuRef}
+          className={`md:hidden transition-all duration-300 overflow-hidden ${
             isOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
-          } bg-white px-6 border-t shadow`}
+          } bg-white border-t`}
         >
-          <ul className="space-y-4 font-medium text-gray-700 py-4">
+          <ul className="px-6 py-4 space-y-4 text-sm font-medium">
             {navItems.map(({ label, id }) => (
               <li key={id}>
                 <button
@@ -113,7 +142,7 @@ const NavBar2WithContent = () => {
                     setActiveSection(id);
                     setIsOpen(false);
                   }}
-                  className={`block w-full text-left transition hover:text-orange-500 ${
+                  className={`block w-full text-left hover:text-orange-500 ${
                     activeSection === id ? "text-orange-500" : ""
                   }`}
                 >
@@ -125,8 +154,8 @@ const NavBar2WithContent = () => {
         </div>
       </header>
 
-      {/* Section Content */}
-      <main className="p-6 max-w-7xl mx-auto text-gray-800 text-lg">
+      {/* ================= PAGE CONTENT ================= */}
+      <main className="max-w-7xl mx-auto px-4 py-10 text-gray-800">
         {renderContent()}
       </main>
     </>
@@ -134,7 +163,3 @@ const NavBar2WithContent = () => {
 };
 
 export default NavBar2WithContent;
-
-
-
-

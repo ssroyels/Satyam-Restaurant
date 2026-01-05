@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
-import ExploreMenu from "./Explore";
 import { UtensilsCrossed } from "lucide-react";
-import axios from '../config/axios.js';
 import { useNavigate } from "react-router-dom";
-
-
+import axios from "../config/axios.js";
+import ExploreMenu from "./Explore";
 
 const cuisines = [
   "Chinese Restaurant Near Me",
@@ -29,223 +27,174 @@ const exploreOptions = [
 ];
 
 const Middle = () => {
-  const [location, setLocationName] = useState(null);
-  const [error1, setError1] = useState("");
   const navigate = useNavigate();
 
+  const [location, setLocation] = useState("");
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [showAll, setShowAll] = useState(false);
+
+  /* ================= LOCATION ================= */
   const getLocation = () => {
     if (!navigator.geolocation) {
-      setError("Geolocation not supported.");
+      setError("Geolocation not supported");
       return;
     }
 
     navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-
+      async ({ coords }) => {
         try {
-          const res = await axios.post("/api/location", {
-            latitude,
-            longitude,
-          },{ withCredentials: true
-});
-          console.log(res.data);
-          setLocationName(res.data.display_name); // from OpenStreetMap
-        } catch (err) {
-          setError("Error getting location name");
+          const res = await axios.post(
+            "/api/location",
+            { latitude: coords.latitude, longitude: coords.longitude },
+            { withCredentials: true }
+          );
+          setLocation(res.data.display_name);
+        } catch {
+          setError("Unable to fetch location");
         }
       },
-      () => {
-        setError("Permission denied or error in fetching location.");
-      },
-      {
-        enableHighAccuracy: true,
-      }
+      () => setError("Location permission denied")
     );
   };
 
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [showAll, setShowAll] = useState(false);
-
-  const displayedCuisines = showAll ? cuisines : cuisines.slice(0, 11);
-
+  /* ================= ITEMS ================= */
   useEffect(() => {
-    const getItems = async () => {
+    const fetchItems = async () => {
       try {
-        const response = await axios.get("/Item/getItems",{ withCredentials: true
-});
-        const items = response?.data?.itemStore;
-        if (Array.isArray(items)) {
-          setCategories(items);
-        } else {
-          setCategories([]);
-          setError("No items found");
-        }
-      } catch (err) {
-        console.error("Error fetching items:", err);
-        setError("Failed to load items");
-        setCategories([]);
+        const res = await axios.get("/Item/getItems", {
+          withCredentials: true,
+        });
+        setItems(res.data?.itemStore || []);
+      } catch {
+        setError("Failed to load food items");
       } finally {
         setLoading(false);
       }
     };
 
-    getItems();
+    fetchItems();
   }, []);
 
-  const submitHandler = (e) => {
-    e.preventDefault();
-    navigate("/foodItems")
-  }
-
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-gray-900 text-white">
-      {/* Brighter Lighting Effects */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-pink-400 opacity-30 rounded-full blur-[200px] animate-pulse" />
-        <div className="absolute top-[20%] right-[10%] w-[500px] h-[500px] bg-purple-500 opacity-25 rounded-full blur-[180px] animate-pulse" />
-        <div className="absolute bottom-[15%] left-[20%] w-[700px] h-[700px] bg-yellow-300 opacity-30 rounded-full blur-[240px] animate-pulse" />
-        <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-green-300 opacity-20 rounded-full blur-[200px] animate-pulse" />
-      </div>
+    <section className="bg-gray-50 py-10 px-4">
+      <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-sm p-6">
 
-      {/* Main Content */}
-      <div className="relative z-10 px-4 py-8 flex items-start justify-center">
-        <div className="w-full bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow-2xl max-w-7xl text-black">
-          {/* Search Section */}
-          <div className="w-full flex flex-col gap-4 sm:flex-row sm:gap-6 items-center justify-center mt-4">
-            <div className="p-6 text-center">
-              <button
-                onClick={getLocation}
-                className="bg-blue-600 text-white px-4 py-2 rounded"
+        {/* ================= SEARCH ================= */}
+        <div className="flex flex-col md:flex-row gap-4 items-center justify-center mb-10">
+          <button
+            onClick={getLocation}
+            className="border border-gray-300 px-4 py-2 rounded-lg text-sm hover:bg-gray-100"
+          >
+            Use current location
+          </button>
+
+          <input
+            type="text"
+            placeholder="Search for restaurant or food"
+            className="w-full md:w-1/2 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 outline-none"
+          />
+        </div>
+
+        {location && (
+          <p className="text-center text-green-600 text-sm mb-6">
+            📍 {location}
+          </p>
+        )}
+        {error && (
+          <p className="text-center text-red-500 text-sm mb-6">
+            {error}
+          </p>
+        )}
+
+        {/* ================= ITEMS GRID ================= */}
+        <h2 className="text-2xl font-bold mb-6">
+          Popular Food Categories
+        </h2>
+
+        {loading ? (
+          <p className="text-center text-gray-500">Loading...</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {items.map((item) => (
+              <div
+                key={item._id}
+                onClick={() => navigate("/foodItems")}
+                className="bg-white border rounded-xl overflow-hidden cursor-pointer hover:shadow-md transition"
               >
-                Choose your current location
-              </button>
-
-              {location && (
-                <p className="mt-4 font-semibold text-green-700">{location}</p>
-              )}
-              {error && <p className="text-red-600 mt-4">{error}</p>}
-            </div>
-
-            <div className="relative w-full sm:w-1/2">
-              <input
-                type="text"
-                placeholder="Search for restaurant, item or more"
-                className="w-full border border-gray-300 text-gray-700 rounded-lg pl-12 pr-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition"
-              />
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M21 21l-4.35-4.35M16.65 16.65A7.5 7.5 0 1116.65 2a7.5 7.5 0 010 15z"
+                <img
+                  src={item.image || "/fallback.jpg"}
+                  alt={item.title}
+                  className="h-40 w-full object-cover"
                 />
-              </svg>
-            </div>
+
+                <div className="p-4 text-center">
+                  <UtensilsCrossed className="mx-auto text-orange-500 mb-2" />
+                  <h3 className="font-semibold text-gray-800">
+                    {item.title}
+                  </h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Fresh & delicious
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
+        )}
 
-          {/* Items Grid */}
-          <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
-            {loading ? (
-              <p className="text-center col-span-full text-gray-500">
-                Loading...
-              </p>
-            ) : error ? (
-              <p className="text-center col-span-full text-red-500">{error}</p>
-            ) : categories.length === 0 ? (
-              <p className="text-center col-span-full text-gray-500">
-                No items available
-              </p>
-            ) : (
-              categories.map((item, index) => (
-                <form action="" key={index} onSubmit={submitHandler}>
-                  <div
-                    key={index}
-                    className="rounded-2xl overflow-hidden shadow-xl bg-white cursor-pointer transition-transform hover:scale-105 hover:shadow-2xl"
-                  >
-                    <div
-                      className="h-40 bg-cover bg-center"
-                      style={{
-                        backgroundImage: `url('${
-                          item?.image || "/fallback.jpg"
-                        }')`,
-                      }}
-                    ></div>
+        {/* ================= EXPLORE ================= */}
+        <div className="mt-12">
+          <ExploreMenu />
+        </div>
 
-                    <div className="p-4 flex flex-col items-center text-center">
-                      <UtensilsCrossed className="w-7 h-7 text-green-700 mb-2" />
-                      <h2 className="text-lg font-semibold text-gray-800">
-                        {item?.title || "Untitled"}
-                      </h2>
-                      <p className="text-sm text-gray-600 mt-1 mb-3">
-                        Enjoy premium taste & freshness
-                      </p>
-                      <button
-                        type="submit"
-                        className="px-4 py-2 bg-green-600 text-white rounded-full text-sm hover:bg-green-700 transition"
-                      >
-                        Buy Food
-                      </button>
-                    </div>
-                  </div>
-                </form>
-              ))
+        {/* ================= CUISINES ================= */}
+        <div className="mt-14">
+          <h2 className="text-2xl font-bold mb-6">
+            Best Cuisines Near Me
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {(showAll ? cuisines : cuisines.slice(0, 11)).map((c, i) => (
+              <div
+                key={i}
+                className="border px-4 py-3 rounded-lg text-center text-sm hover:shadow-sm"
+              >
+                {c}
+              </div>
+            ))}
+
+            {!showAll && (
+              <button
+                onClick={() => setShowAll(true)}
+                className="border px-4 py-3 rounded-lg text-orange-500 font-semibold"
+              >
+                Show more ↓
+              </button>
             )}
           </div>
+        </div>
 
-          {/* Explore Section */}
-          <div className="mt-10">
-            <ExploreMenu />
-          </div>
-          <div className="px-6 py-10 max-w-6xl mx-auto">
-            {/* Best Cuisines */}
-            <h2 className="text-2xl font-bold mb-6">Best Cuisines Near Me</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {displayedCuisines.map((item, index) => (
-                <div
-                  key={index}
-                  className="border border-gray-300 px-4 py-3 rounded-xl text-center text-[16px] font-medium hover:shadow-sm transition"
-                >
-                  {item}
-                </div>
-              ))}
+        {/* ================= EXPLORE OPTIONS ================= */}
+        <div className="mt-14">
+          <h2 className="text-2xl font-bold mb-6">
+            Explore Restaurants Near Me
+          </h2>
 
-              {!showAll && (
-                <button
-                  onClick={() => setShowAll(true)}
-                  className="border border-gray-300 px-4 py-3 rounded-xl text-orange-500 font-semibold hover:bg-orange-50 transition"
-                >
-                  Show More ↓
-                </button>
-              )}
-            </div>
-
-            {/* Explore Every Restaurant */}
-            <h2 className="text-2xl font-bold mt-14 mb-6">
-              Explore Every Restaurants Near Me
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {exploreOptions.map((item, idx) => (
-                <div
-                  key={idx}
-                  className="border border-gray-300 px-4 py-3 rounded-xl text-center text-[16px] font-medium hover:shadow-sm transition"
-                >
-                  {item}
-                </div>
-              ))}
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {exploreOptions.map((item, idx) => (
+              <div
+                key={idx}
+                className="border px-4 py-3 rounded-lg text-center hover:shadow-sm"
+              >
+                {item}
+              </div>
+            ))}
           </div>
         </div>
+
       </div>
-    </div>
+    </section>
   );
 };
 

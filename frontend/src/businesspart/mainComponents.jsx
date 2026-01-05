@@ -1,74 +1,111 @@
+import React, { useEffect, useState } from "react";
 import axios from "../config/axios.js";
-import React, { useEffect, useState } from 'react';
-import AOS from 'aos';
-import 'aos/dist/aos.css';
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const MainComponents = () => {
   const [businesses, setBusinesses] = useState([]);
+  const [loading, setLoading] = useState(true);
 
+  /* ================= FETCH DATA ================= */
   useEffect(() => {
     const fetchBusinesses = async () => {
       try {
-        const response = await axios.get("/Business/getBusiness",{ withCredentials: true
-});
-        setBusinesses(response.data.BusinessStore || []);
-      } catch (error) {
-        console.error("Error fetching data:", error);
+        const res = await axios.get("/Business/getBusiness", {
+          withCredentials: true,
+        });
+        setBusinesses(res.data?.BusinessStore || []);
+      } catch (err) {
+        console.error("Error fetching businesses:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchBusinesses();
   }, []);
 
+  /* ================= AOS INIT ================= */
   useEffect(() => {
-    AOS.init({ duration: 1000, once: true });
+    AOS.init({ duration: 900, once: true, easing: "ease-out-cubic" });
   }, []);
 
   return (
-    <div className="bg-gradient-to-b from-white to-[#f3efff] py-12 px-6 md:px-16">
-      <h1 className="text-4xl md:text-5xl font-bold text-center text-orange-600 mb-12">
-        Our Businesses
-      </h1>
+    <section className="bg-gradient-to-b from-white to-[#f6f3ff] py-20 px-6 md:px-16">
+      {/* ================= HEADER ================= */}
+      <div className="text-center mb-14">
+        <span className="inline-block mb-3 px-4 py-1 text-xs font-semibold tracking-widest text-orange-600 bg-orange-100 rounded-full">
+          SINGH RESTAURANT ECOSYSTEM
+        </span>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
-        {businesses.map((item, index) => (
-         <div
-  key={index}
-  data-aos={index % 2 === 0 ? 'fade-right' : 'fade-left'}
-  className="group relative bg-white border border-orange-200 rounded-[30px] p-8 shadow-md transition-all duration-300 hover:shadow-2xl hover:shadow-orange-300 hover:scale-[1.02] flex flex-col items-start text-left md:items-center md:text-center"
->
-  <div className="transition-transform duration-300 group-hover:-translate-y-6 w-full flex justify-center">
-    <img
-      src={item.image}
-      alt={item.title}
-      className="w-40 h-40 object-contain mb-4"
-    />
-  </div>
+        <h1 className="text-3xl md:text-5xl font-extrabold text-gray-800">
+          Our Businesses
+        </h1>
 
-  <h2 className="text-xl md:text-2xl font-bold text-orange-600 mb-2">
-    {item.title}
-  </h2>
-
-  <hr className="border-t border-gray-200 w-3/4 mx-0 md:mx-auto mb-4" />
-
-  <p className="text-gray-700 text-sm leading-relaxed mb-6">
-    {item.paragraph}
-  </p>
-
-  <button className="bg-orange-500 hover:bg-orange-600 active:scale-95 text-white font-semibold text-sm px-6 py-2 rounded-xl shadow-md transition-all">
-    {item.title === "Swiggy Dineout"
-      ? "Click here to make reservations"
-      : "Place your order here"}
-  </button>
-</div>
-
-          
-        ))}
+        <p className="mt-4 text-gray-600 max-w-2xl mx-auto">
+          Building India’s most trusted food & convenience platform through
+          innovation, partnerships, and customer-first thinking.
+        </p>
       </div>
-    </div>
+
+      {/* ================= GRID ================= */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-7xl mx-auto">
+        {loading
+          ? Array.from({ length: 3 }).map((_, i) => (
+              <div
+                key={i}
+                className="animate-pulse bg-white rounded-3xl p-8 shadow"
+              >
+                <div className="h-40 bg-gray-200 rounded-xl mb-6" />
+                <div className="h-6 bg-gray-200 rounded w-2/3 mb-3" />
+                <div className="h-4 bg-gray-200 rounded w-full mb-2" />
+                <div className="h-4 bg-gray-200 rounded w-5/6" />
+              </div>
+            ))
+          : businesses.map((item, index) => (
+              <div
+                key={index}
+                data-aos={index % 2 === 0 ? "fade-up" : "fade-down"}
+                className="group bg-white rounded-3xl p-8 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col"
+              >
+                {/* Image */}
+                <div className="flex justify-center mb-6">
+                  <div className="bg-orange-50 rounded-2xl p-4 transition-transform group-hover:-translate-y-2">
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="w-32 h-32 object-contain"
+                      loading="lazy"
+                    />
+                  </div>
+                </div>
+
+                {/* Title */}
+                <h2 className="text-xl md:text-2xl font-bold text-gray-800 text-center mb-3">
+                  {item.title}
+                </h2>
+
+                {/* Description */}
+                <p className="text-gray-600 text-sm leading-relaxed text-center mb-8">
+                  {item.paragraph}
+                </p>
+
+                {/* CTA */}
+                <div className="mt-auto flex justify-center">
+                  <button
+                    aria-label={item.title}
+                    className="bg-orange-500 hover:bg-orange-600 active:scale-95 text-white font-semibold text-sm px-6 py-2 rounded-full shadow transition"
+                  >
+                    {item.title === "Swiggy Dineout"
+                      ? "Make a Reservation"
+                      : "Explore Now"}
+                  </button>
+                </div>
+              </div>
+            ))}
+      </div>
+    </section>
   );
 };
 
 export default MainComponents;
-
-

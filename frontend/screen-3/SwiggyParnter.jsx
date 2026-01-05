@@ -1,102 +1,150 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from "react";
 import axios from "../src/config/axios.js";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
-const SwiggyPartner = () => {
-  const [number,setNumber] = useState("");
+const SinghPartner = () => {
+  const [value, setValue] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handlenumber = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    axios.post("/Mobile/sendNumber",{phoneNumber:number},{withCredentials:true})
-    .then(() => {
-      alert("Mobile number register successfully")
-      // setNumber("")
+    setError("");
+
+    if (!value.trim()) {
+      setError("Please enter a mobile number or restaurant ID.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await axios.post(
+        "/Mobile/sendNumber",
+        { phoneNumber: value },
+        { withCredentials: true }
+      );
+
       navigate("/SinghReastaurentOffer");
-    })
-    .catch((err) => {console.log(err)})
+    } catch (err) {
+      console.error(err);
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-
-
-  
-  } 
   return (
     <div className="font-sans text-gray-800">
-      {/* Hero Section */}
-      <div className="relative bg-black text-white">
+
+      {/* ================= HERO ================= */}
+      <section className="relative bg-black text-white">
         <img
           src="https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&w=1500&q=80"
-          alt="background"
-          className="w-full h-[400px] object-cover opacity-60"
+          alt="Partner with Singh Restaurant"
+          className="w-full h-[420px] object-cover opacity-60"
         />
-        <div className="absolute inset-0 flex flex-col lg:flex-row items-center justify-between px-6 md:px-16 py-10">
+
+        <div className="absolute inset-0 flex flex-col lg:flex-row items-center justify-between px-6 md:px-16 py-12 gap-10">
+          
+          {/* Left Content */}
           <div className="max-w-xl">
-            <h3 className="text-orange-500 font-semibold text-sm">PARTNER WITH Singh Restaurent!</h3>
-            <h1 className="text-3xl md:text-4xl font-bold mt-2">Reach customers far away from you</h1>
-          </div>
-          <div  className="bg-white text-gray-800 rounded-xl shadow-lg w-full max-w-sm mt-10 lg:mt-0 p-6">
-           <form action="" onSubmit={handlenumber}>
+            <span className="inline-block mb-2 px-3 py-1 text-xs font-semibold tracking-widest bg-orange-500 text-white rounded-full">
+              PARTNER WITH SINGH RESTAURANT
+            </span>
 
- <h2 className="text-lg font-semibold mb-4">Get Started</h2>
-            <p className="text-sm mb-2">Enter a mobile number or restaurant ID to continue</p>
-            <input
-              type="text"
-              placeholder="Enter Restaurant ID / Mobile number"
-              className="w-full border border-gray-300 p-2 rounded-md mb-4"
-              value={number}
-              onChange={e => setNumber(e.target.value)}  
-            />
-            <button type='submit' className="w-full bg-black text-white py-2 rounded-md cursor-pointer">Continue</button>
-            <p className="text-xs mt-3">
-              By logging in, I agree to Singh Restaurent’s <a href="#" className="underline">terms & conditions</a>
+            <h1 className="text-3xl md:text-4xl font-extrabold mt-4">
+              Reach more customers.<br />Grow your restaurant business.
+            </h1>
+
+            <p className="mt-4 text-gray-200 text-sm">
+              Join thousands of restaurant partners delivering food with Singh
+              Restaurant.
             </p>
-           </form>
-           
+          </div>
+
+          {/* Form Card */}
+          <div className="bg-white text-gray-800 rounded-2xl shadow-xl w-full max-w-sm p-6">
+            <h2 className="text-lg font-bold mb-2">Get Started</h2>
+            <p className="text-sm text-gray-600 mb-4">
+              Enter your mobile number or restaurant ID
+            </p>
+
+            {error && (
+              <p className="text-sm text-red-600 mb-3">{error}</p>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <input
+                type="text"
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                placeholder="Mobile number / Restaurant ID"
+                className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-orange-500 outline-none"
+                aria-label="Mobile number or Restaurant ID"
+              />
+
+              <button
+                type="submit"
+                disabled={loading}
+                className={`w-full py-2 rounded-md font-semibold text-white transition ${
+                  loading
+                    ? "bg-orange-400 cursor-not-allowed"
+                    : "bg-orange-500 hover:bg-orange-600"
+                }`}
+              >
+                {loading ? "Please wait..." : "Continue"}
+              </button>
+
+              <p className="text-xs text-gray-500">
+                By continuing, you agree to Singh Restaurant’s{" "}
+                <span className="underline">Terms & Conditions</span>.
+              </p>
+            </form>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* 3-Step Section */}
-      <section className="py-10 px-6 md:px-16 bg-white grid md:grid-cols-2 gap-6">
-        <div className="bg-gray-50 rounded-xl p-6 shadow-sm">
-          <h3 className="text-sm text-gray-500 mb-1">In just 3 easy steps</h3>
-          <h2 className="text-xl font-semibold mb-6">Get your restaurant delivery-ready in 24hrs!</h2>
+      {/* ================= STEPS ================= */}
+      <section className="py-14 px-6 md:px-16 bg-white grid md:grid-cols-2 gap-8">
+        
+        {/* Steps */}
+        <div className="bg-gray-50 rounded-2xl p-8 shadow-sm">
+          <span className="text-xs text-gray-500">
+            In just 3 easy steps
+          </span>
+          <h2 className="text-xl font-bold mt-2 mb-6">
+            Get delivery-ready in 24 hours
+          </h2>
+
           <div className="space-y-6 text-sm">
-            <div className="flex items-start">
-              <div className="text-purple-600 font-bold mr-2">●</div>
-              <div>
-                <span className="font-bold">STEP 1</span><br />
-                Install the Singh Restaurent Owner App
+            {[
+              "Install the Singh Restaurant Owner App",
+              "Login or register using your phone number",
+              "Enter restaurant details & documents",
+            ].map((step, index) => (
+              <div key={index} className="flex gap-3">
+                <span className="text-orange-500 font-bold">
+                  STEP {index + 1}
+                </span>
+                <p>{step}</p>
               </div>
-            </div>
-            <div className="flex items-start">
-              <div className="text-purple-600 font-bold mr-2">●</div>
-              <div>
-                <span className="font-bold">STEP 2</span><br />
-                Login/Register using your phone number
-              </div>
-            </div>
-            <div className="flex items-start">
-              <div className="text-purple-600 font-bold mr-2">●</div>
-              <div>
-                <span className="font-bold">STEP 3</span><br />
-                Enter restaurant details
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
-        {/* Document Checklist */}
-        <div className="bg-purple-50 border border-purple-200 rounded-xl p-6 shadow-sm">
-          <h3 className="font-semibold text-sm mb-2">For an easy form filling process,</h3>
-          <p className="text-sm mb-4">you can keep these documents handy.</p>
+        {/* Documents */}
+        <div className="bg-orange-50 border border-orange-200 rounded-2xl p-8 shadow-sm">
+          <h3 className="font-semibold mb-2">
+            Keep these documents ready
+          </h3>
+
           <ul className="text-sm space-y-2 text-gray-700">
-            <li>• FSSAI License copy <a href="#" className="text-orange-500 underline">Apply Here</a></li>
-            <li>• Your Restaurant menu</li>
-            <li>• Bank details</li>
-            <li>• GSTIN <a href="#" className="text-orange-500 underline">Apply Here</a></li>
-            <li>• PAN card copy</li>
+            <li>• FSSAI License</li>
+            <li>• Restaurant menu</li>
+            <li>• Bank account details</li>
+            <li>• GSTIN</li>
+            <li>• PAN card</li>
           </ul>
         </div>
       </section>
@@ -104,4 +152,4 @@ const SwiggyPartner = () => {
   );
 };
 
-export default SwiggyPartner;
+export default SinghPartner;

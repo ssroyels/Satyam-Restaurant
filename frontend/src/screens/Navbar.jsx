@@ -1,107 +1,126 @@
 import React, { useState } from "react";
 import { Menu, X } from "lucide-react";
+import { Link } from "react-router-dom";
 import Login from "./Login";
-import { Link } from "react-router-dom"
 
 const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [loginOpen, setLoginOpen] = useState(false);
 
   return (
-    <header className="bg-orange-400 text-white relative z-40">
-      <div className="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
-        {/* Logo */}
-        <div className="flex items-center gap-3">
-          <div className="bg-white p-1 rounded">
+    <>
+      {/* ================= NAVBAR ================= */}
+      <header className="sticky top-0 z-40 bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+          
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-3">
             <img
               src="https://png.pngtree.com/template/20190223/ourmid/pngtree-restaurant-logo-image_58802.jpg"
-              alt="Logo"
-              className="h-9 w-9 object-cover rounded"
+              alt="Singh Restaurant"
+              className="h-10 w-10 rounded-lg object-cover"
             />
+            <span className="text-xl font-bold text-gray-800">
+              Singh Restaurant
+            </span>
+          </Link>
+
+          {/* Desktop Menu */}
+          <nav className="hidden md:flex items-center gap-8 font-medium text-gray-700">
+            <Link to="/route-2" className="hover:text-orange-500 transition">
+              Corporate
+            </Link>
+            <Link to="/route-3" className="hover:text-orange-500 transition">
+              Partner with us
+            </Link>
+            <button className="border border-orange-500 text-orange-500 px-4 py-1.5 rounded-full hover:bg-orange-500 hover:text-white transition">
+              Get the App
+            </button>
+            <button
+              onClick={() => setLoginOpen(true)}
+              className="bg-orange-500 text-white px-5 py-1.5 rounded-full hover:bg-orange-600 transition"
+            >
+              Sign In
+            </button>
+          </nav>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="md:hidden text-gray-800"
+          >
+            {menuOpen ? <X size={26} /> : <Menu size={26} />}
+          </button>
+        </div>
+
+        {/* ================= MOBILE MENU ================= */}
+        {menuOpen && (
+          <div className="md:hidden bg-white border-t px-6 py-6 space-y-4">
+            <Link
+              to="/route-2"
+              onClick={() => setMenuOpen(false)}
+              className="block text-gray-700 font-medium"
+            >
+              Corporate
+            </Link>
+            <Link
+              to="/route-3"
+              onClick={() => setMenuOpen(false)}
+              className="block text-gray-700 font-medium"
+            >
+              Partner with us
+            </Link>
+            <button className="w-full border border-orange-500 text-orange-500 py-2 rounded-full">
+              Get the App
+            </button>
+            <button
+              onClick={() => {
+                setLoginOpen(true);
+                setMenuOpen(false);
+              }}
+              className="w-full bg-orange-500 text-white py-2 rounded-full"
+            >
+              Sign In
+            </button>
           </div>
-          <span className="text-xl font-bold whitespace-nowrap">Singh-Restaurant</span>
-        </div>
+        )}
+      </header>
 
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-6 font-medium">
-          <Link to={"/route-2"} className="hover:underline font-bold">
-            Singh Corporate
-          </Link>
-          <Link to={"/route-3"} className="hover:underline font-bold">
-            Partner with us
-          </Link>
-          <a
-            href="#"
-            className="border border-white font-bold px-4 py-1 rounded-full hover:bg-white hover:text-orange-600 transition"
-          >
-            Get the App →
-          </a>
-          <button
-            onClick={() => setIsSidePanelOpen(true)}
-            className="bg-black font-bold text-white px-4 py-1 rounded-full hover:opacity-80 transition"
-          >
-            Sign in
-          </button>
-        </nav>
-
-        {/* Mobile Toggle */}
-        <div className="md:hidden">
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="text-white focus:outline-none"
-            aria-label="Toggle menu"
-          >
-            {isOpen ? <X size={28} /> : <Menu size={28} />}
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile Dropdown Menu */}
-      {isOpen && (
-        <nav className="md:hidden px-6 pb-4 space-y-4 animate-slide-down bg-orange-500">
-          <Link to={"/route-2"} className="block font-bold hover:underline">Singh Corporate</Link>
-          <Link to={"/route-3"} className="block font-bold hover:underline">Partner with us</Link>
-          <a
-            href="#"
-            className="block border font-bold border-white px-4 py-2 rounded-full text-center hover:bg-white hover:text-orange-600 transition"
-          >
-            Get the App →
-          </a>
-          <button
-            onClick={() => {
-              setIsSidePanelOpen(true);
-              setIsOpen(false);
-            }}
-            className="block w-full font-bold bg-black text-white px-4 py-2 rounded-full text-center hover:opacity-80 transition"
-          >
-            Sign in
-          </button>
-        </nav>
-      )}
-
-      {/* Side Login Panel */}
+      {/* ================= LOGIN SLIDE PANEL ================= */}
       <div
-        className={`fixed top-0 right-0 h-full w-[85vw] sm:w-[65vw] md:w-[450px] bg-white shadow-lg transition-transform duration-300 ease-in-out z-50 ${
-          isSidePanelOpen ? "translate-x-0" : "translate-x-full"
+        className={`fixed inset-0 z-50 transition ${
+          loginOpen ? "visible" : "invisible"
         }`}
       >
-        {/* Panel Header */}
-        <header className="flex justify-between items-center px-4 py-3 bg-orange-400 text-white shadow">
-          <h1 className="text-lg font-semibold">Login</h1>
-          <button
-            onClick={() => setIsSidePanelOpen(false)}
-            className="text-white hover:opacity-80"
-          >
-            <X size={24} />
-          </button>
-        </header>
+        {/* Overlay */}
+        <div
+          onClick={() => setLoginOpen(false)}
+          className={`absolute inset-0 bg-black/40 transition-opacity ${
+            loginOpen ? "opacity-100" : "opacity-0"
+          }`}
+        />
 
-        {/* Panel Content */}
-        <div className="p-4">
-          <Login />
+        {/* Panel */}
+        <div
+          className={`absolute right-0 top-0 h-full w-full sm:w-[420px] bg-white shadow-xl transform transition-transform duration-300 ${
+            loginOpen ? "translate-x-0" : "translate-x-full"
+          }`}
+        >
+          <div className="flex items-center justify-between px-5 py-4 border-b">
+            <h2 className="text-lg font-semibold text-gray-800">
+              Login to continue
+            </h2>
+            <button onClick={() => setLoginOpen(false)}>
+              <X size={22} />
+            </button>
+          </div>
+
+          <div className="p-5">
+            <Login />
+          </div>
         </div>
       </div>
-    </header>
+    </>
   );
 };
 

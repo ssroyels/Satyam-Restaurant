@@ -1,111 +1,118 @@
-import React, { useState, useEffect } from 'react';
-import axios from '../config/axios.js';
-import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
-
-const floatingTexts = [
-  "Welcome to Singh Restaurant",
-  "Delicious Food Served Fresh",
-  "Your Hunger, Our Priority",
-  "Fast Delivery & Tasty Meals",
-];
+import React, { useState } from "react";
+import axios from "../config/axios.js";
+import { useNavigate, Link } from "react-router-dom";
 
 const SignUp = () => {
-  const [step, setStep] = useState(1);
   const navigate = useNavigate();
+  const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(false);
+
   const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    password: '',
+    username: "",
+    email: "",
+    password: "",
   });
-  const [otp, setOtp] = useState('');
-  const [message, setMessage] = useState('');
-  const [floatingIndex, setFloatingIndex] = useState(0);
-  const [floatingVisible, setFloatingVisible] = useState(true);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setFloatingIndex((prev) => (prev + 1) % floatingTexts.length);
-      setFloatingVisible(true);
-    }, 3000);
-
-    const handleMouseMove = () => setFloatingVisible(false);
-    window.addEventListener('mousemove', handleMouseMove);
-
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener('mousemove', handleMouseMove);
-    };
-  }, []);
+  const [otp, setOtp] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  /* --------------------------- SEND OTP --------------------------- */
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
+    setMessage("");
+
     try {
-      const res = await axios.post('/users/register',{ withCredentials: true
-} ,formData);
-      setMessage(res.data.msg);
+      const res = await axios.post(
+        "/users/register",
+        formData,
+        { withCredentials: true }
+      );
+
+      setMessage(res.data.msg || "OTP sent successfully");
       setStep(2);
     } catch (err) {
-      setMessage(err.response?.data?.msg || 'Error sending OTP');
+      setError(err.response?.data?.msg || "Signup failed");
+    } finally {
+      setLoading(false);
     }
   };
 
+  /* --------------------------- VERIFY OTP --------------------------- */
   const handleOtpSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
+    setMessage("");
+
     try {
-      const res = await axios.post('/users/verifyOtp', {
-        email: formData.email,
-        otp,
-      },{ withCredentials: true
-});
-      setMessage(res.data.msg);
-      setFormData({ username: '', email: '', password: '' });
-      setOtp('');
-      navigate('/foodItems');
+      const res = await axios.post(
+        "/users/verifyOtp",
+        { email: formData.email, otp },
+        { withCredentials: true }
+      );
+
+      setMessage(res.data.msg || "Account verified");
+      navigate("/foodItems");
     } catch (err) {
-      setMessage(err.response?.data?.msg || 'OTP verification failed');
+      setError(err.response?.data?.msg || "Invalid OTP");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-100 via-red-100 to-pink-200 overflow-hidden">
-      {floatingVisible && (
-        <div className="absolute top-5 w-full text-center z-10 animate-pulse text-xl font-semibold text-red-600 tracking-wide">
-          {floatingTexts[floatingIndex]}
-        </div>
-      )}
-
-      <div className="relative z-20 max-w-md w-full bg-white p-6 rounded-xl shadow-2xl backdrop-blur-lg">
-        <h2 className="text-2xl font-bold mb-4 text-center text-orange-600">
-          {step === 1 ? 'Sign Up & Get OTP' : 'Verify OTP'}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-100 to-red-200 px-4">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
+        
+        <h2 className="text-3xl font-bold text-center text-orange-600 mb-2">
+          Singh Restaurant
         </h2>
+        <p className="text-center text-gray-500 mb-6">
+          {step === 1 ? "Create your account" : "Verify OTP"}
+        </p>
 
-        {message && <p className="text-sm text-green-600 mb-3 text-center">{message}</p>}
+        {/* Messages */}
+        {message && (
+          <p className="text-green-600 text-sm text-center mb-3">
+            {message}
+          </p>
+        )}
+        {error && (
+          <p className="text-red-600 text-sm text-center mb-3">
+            {error}
+          </p>
+        )}
 
-        {step === 1 ? (
+        {/* STEP 1 */}
+        {step === 1 && (
           <form onSubmit={handleSubmit} className="space-y-4">
             <input
               type="text"
               name="username"
-              placeholder="Username"
+              placeholder="Full Name"
               value={formData.username}
               onChange={handleChange}
               required
-              className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-orange-500 outline-none"
             />
+
             <input
               type="email"
               name="email"
-              placeholder="Email"
+              placeholder="Email address"
               value={formData.email}
               onChange={handleChange}
               required
-              className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-orange-500 outline-none"
             />
+
             <input
               type="password"
               name="password"
@@ -113,31 +120,44 @@ const SignUp = () => {
               value={formData.password}
               onChange={handleChange}
               required
-              className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-orange-500 outline-none"
             />
+
             <button
               type="submit"
-              className="w-full bg-orange-500 text-white py-2 rounded-md hover:bg-orange-600 transition"
+              disabled={loading}
+              className="w-full bg-orange-500 text-white py-3 rounded-lg font-semibold hover:bg-orange-600 transition disabled:opacity-60"
             >
-              Send OTP
+              {loading ? "Sending OTP..." : "Create Account"}
             </button>
-            <Link to={"/login"} className='text-2xl text-blue-700 hover:text-blue-300 underline font-bold' >Login Now</Link>
+
+            <p className="text-center text-sm text-gray-600">
+              Already have an account?{" "}
+              <Link to="/login" className="text-orange-600 font-semibold hover:underline">
+                Login
+              </Link>
+            </p>
           </form>
-        ) : (
+        )}
+
+        {/* STEP 2 */}
+        {step === 2 && (
           <form onSubmit={handleOtpSubmit} className="space-y-4">
             <input
               type="text"
-              placeholder="Enter OTP"
+              placeholder="Enter 6-digit OTP"
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
               required
-              className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none text-center tracking-widest"
             />
+
             <button
               type="submit"
-              className="w-full bg-green-500 text-white py-2 rounded-md hover:bg-green-600 transition"
+              disabled={loading}
+              className="w-full bg-green-500 text-white py-3 rounded-lg font-semibold hover:bg-green-600 transition disabled:opacity-60"
             >
-              Verify OTP
+              {loading ? "Verifying..." : "Verify & Continue"}
             </button>
           </form>
         )}
@@ -147,6 +167,7 @@ const SignUp = () => {
 };
 
 export default SignUp;
+
 
 
 

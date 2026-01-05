@@ -2,129 +2,112 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
 const Login = () => {
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const [error, setError] = useState("");
 
   const submitHandler = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
+
     try {
-      setLoading(true);
-      const res = await fetch("https://satyam-restaurant.onrender.com/users/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      },{ withCredentials: true
-});
-      setLoading(false);
+      const res = await fetch(
+        "https://satyam-restaurant.onrender.com/users/login",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ email, password }),
+        }
+      );
 
       const data = await res.json();
+
       if (!res.ok) {
-        alert(data?.msg || "Invalid credentials");
-      } else {
-        alert("Login successful!");
-        localStorage.setItem("token", data.token);
-        navigate("/foodItems");
+        throw new Error(data?.msg || "Invalid credentials");
       }
+
+      localStorage.setItem("token", data.token);
+      navigate("/foodItems");
     } catch (err) {
-      console.error(err);
-      alert("Something went wrong");
+      setError(err.message || "Login failed");
+    } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-red-50 via-orange-100 to-yellow-50 flex items-center justify-center overflow-hidden px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-gray-900 to-orange-900 px-4">
       
-      {/* Floating Background Dishes */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <img
-          src="https://images.unsplash.com/photo-1600891964599-f61ba0e24092?auto=format&fit=crop&w=1200&q=100"
-          alt="Dish 1"
-          className="absolute w-28 sm:w-32 top-10 left-6 sm:left-10 opacity-80 animate-[floatUpDown_2s_ease-in-out_infinite]"
-        />
-        <img
-          src="https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?auto=format&fit=crop&w=1200&q=100"
-          alt="Dish 2"
-          className="absolute w-36 sm:w-40 bottom-10 right-8 sm:right-16 opacity-90 animate-[floatUpDown_2s_ease-in-out_infinite]"
-        />
-      </div>
-
-      {/* Login Card */}
-      <div className="relative z-10 w-full max-w-5xl grid md:grid-cols-2 bg-white/80 backdrop-blur-sm shadow-xl rounded-xl overflow-hidden">
+      {/* ================= CARD ================= */}
+      <div className="relative w-full max-w-md rounded-2xl bg-white/10 backdrop-blur-xl shadow-2xl border border-white/20 p-8">
         
-        {/* Left Side */}
-        <div className="hidden md:flex items-center justify-center bg-white/10">
-          <img
-            src="https://cdn-icons-png.flaticon.com/512/3075/3075977.png"
-            alt="Food Icon"
-            className="w-60 h-60 object-contain hover:scale-105 transition"
+        {/* Glow */}
+        <div className="absolute -top-10 -right-10 w-40 h-40 bg-orange-500/30 blur-3xl rounded-full" />
+        <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-red-500/20 blur-3xl rounded-full" />
+
+        <h1 className="relative text-3xl font-extrabold text-white text-center mb-2">
+          Welcome Back
+        </h1>
+        <p className="relative text-center text-gray-300 mb-6">
+          Login to <span className="text-orange-400 font-semibold">Singh Restaurant</span>
+        </p>
+
+        {error && (
+          <p className="relative text-red-400 text-sm text-center mb-4">
+            {error}
+          </p>
+        )}
+
+        {/* ================= FORM ================= */}
+        <form onSubmit={submitHandler} className="relative space-y-4">
+          <input
+            type="email"
+            placeholder="Email address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="w-full rounded-lg bg-white/90 px-4 py-3 text-black outline-none focus:ring-2 focus:ring-orange-500"
           />
-        </div>
 
-        {/* Right Side - Login Form */}
-        <div className="p-8 flex flex-col justify-center relative">
-          <h2 className="text-4xl font-extrabold text-orange-600 mb-2">
-            Welcome Back!
-          </h2>
-          <p className="text-sm text-gray-700 mb-6">
-            Sign in to <strong>Singh Restaurant</strong>
-          </p>
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="w-full rounded-lg bg-white/90 px-4 py-3 text-black outline-none focus:ring-2 focus:ring-orange-500"
+          />
 
-          <form onSubmit={submitHandler} className="space-y-4">
-            <input
-              type="email"
-              placeholder="Enter your Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full p-3 text-black rounded-md border border-gray-300 focus:ring-2 focus:ring-orange-400 outline-none"
-            />
-            <input
-              type="password"
-              placeholder="Enter your Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full text-black p-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-orange-400 outline-none"
-            />
-            <button
-              type="submit"
-              disabled={loading}
-              className={`w-full bg-orange-500 text-white font-semibold py-2 rounded-md transition ${
-                loading ? "opacity-50 cursor-not-allowed" : "hover:bg-orange-600"
-              }`}
-            >
-              {loading ? "Logging in..." : "LOGIN"}
-            </button>
-          </form>
+          <button
+            type="submit"
+            disabled={loading}
+            className={`w-full rounded-lg py-3 font-semibold transition-all ${
+              loading
+                ? "bg-orange-400 cursor-not-allowed"
+                : "bg-orange-500 hover:bg-orange-600"
+            } text-white`}
+          >
+            {loading ? "Signing in..." : "Login"}
+          </button>
+        </form>
 
-          <p className="text-xs text-gray-600 mt-5">
-            Don’t have an account?{" "}
-            <Link to="/signup" className="text-orange-600 underline">
-              Create one
-            </Link>
-          </p>
-        </div>
+        <p className="relative text-sm text-center text-gray-300 mt-6">
+          Don’t have an account?{" "}
+          <Link
+            to="/signup"
+            className="text-orange-400 font-semibold hover:underline"
+          >
+            Create one
+          </Link>
+        </p>
       </div>
-
-      {/* Inline custom animation for floatUpDown */}
-      <style>
-        {`
-          @keyframes floatUpDown {
-            0%, 100% { transform: translateY(40px); }
-            50% { transform: translateY(-40px); }
-          }
-        `}
-      </style>
     </div>
   );
 };
 
 export default Login;
-
-
-
-
-

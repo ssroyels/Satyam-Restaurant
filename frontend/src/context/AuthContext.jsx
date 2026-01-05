@@ -1,41 +1,73 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
-// Create context
-const AuthContext = createContext();
+/* ================= CONTEXT ================= */
+const AuthContext = createContext(null);
 
-// Provider component
+/* ================= PROVIDER ================= */
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // Stores user info
+  const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Load user from localStorage on initial render
+  /* ---------- INIT (ON APP LOAD) ---------- */
   useEffect(() => {
-    const storedUser = localStorage.getItem("token");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
     }
     setLoading(false);
   }, []);
 
-  // Login function
-  const login = (userData) => {
-    setUser(userData);
-    localStorage.setItem("token", JSON.stringify(userData));
+  /* ---------- CROSS TAB SYNC ---------- */
+  useEffect(() => {
+    const handleStorage = (e) => {
+      if (e.key === "token") {
+        setToken(e.newValue);
+      }
+    };
+
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
+
+  /* ---------- AUTH ACTIONS ---------- */
+  const login = (jwtToken) => {
+    localStorage.setItem("token", jwtToken);
+    setToken(jwtToken);
   };
 
-  // Logout function
   const logout = () => {
-    setUser(null);
     localStorage.removeItem("token");
+    setToken(null);
   };
+
+  /* ---------- DERIVED STATE ---------- */
+  const isAuthenticated = Boolean(token);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider
+      value={{
+        token,
+        isAuthenticated,
+        login,
+        logout,
+        loading,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
 
-// Hook to use auth context
-export const useAuth = () => useContext(AuthContext);
-
+/* ================= HOOK ================= */
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used inside AuthProvider");
+  }
+  return context;
+};
